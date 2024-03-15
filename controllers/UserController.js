@@ -8,6 +8,7 @@ cloudinary.config({
 });
 
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 class UserController {
     static getAllUser = async (req , res) => {
@@ -17,7 +18,6 @@ class UserController {
             console.log(err)
         }
     }
-
     static userInsert = async (req, res) => {
         try{
             //To upload Image on Cloud
@@ -60,6 +60,81 @@ class UserController {
             }
         }catch(err){
             console.log(err);
+        }
+    }
+    static loginUser = async (req, res) => {
+        try {
+            // console.log(req.body)
+            const { email, password } = req.body
+            // console.log(password)
+            if (email && password) {
+                const user = await UserModel.findOne({ email: email })
+                // console.log(user)
+                if (user != null) {
+                    const isMatched = await bcrypt.compare(password, user.password)
+                    if ((user.email === email) && isMatched) {
+                        //generate jwt token
+                        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
+                        // console.log(token)
+                        res.cookie('token', token)
+                        res.status(201).json({ status: "success", message: "Login successfully with web token 😃🍻", token, user });
+                    } else {
+                        res.status(401).json({ status: "failed", message: "'Email and Password is not valid !😓" });
+                    }
+                } else {
+                    res.status(401).json({ status: "failed", message: "'You are not registered user😓" });
+                }
+            } else {
+                res.status(401).json({ status: "failed", message: "'All Fields are required 😓" });
+            }
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    static logOut = async (req, res) => {
+        
+        try {
+            res.cookie("token", null, {
+                expires: new Date(Date.now()),
+                httpOnly: true,
+            });
+
+            res.status(200).json({success: true,message: "Logged Out"});
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    static updatePassword = async (req, res) => {
+        // console.log(req.user)
+        try {
+            const { oldPassword, newPassword, confirmPassword } = req.body
+
+            if (oldPassword && newPassword && confirmPassword) {
+                const user = await UserModel.findById(req.user.id);
+                const isMatch = await bcrypt.compare(oldPassword, user.password)
+                //const isPasswordMatched = await userModel.comparePassword(req.body.oldPassword);
+                if (!isMatch) {
+                    res.status(201).json({ "status": 400, "message": "Old password is incorrect" })
+                } else {
+                    if (newPassword !== confirmPassword) {
+                        res.status(201)
+                            .json({ "status": "failed", "message": "password does not match" })
+                    } else {
+                        const salt = await bcrypt.genSalt(10)
+                        const newHashPassword = await bcrypt.hash(newPassword, salt)
+                        //console.log(req.user)
+                        await UserModel.findByIdAndUpdate(req.user.id, { $set: { password: newHashPassword } })
+                        res.status(201)
+                            .json({ "status": "success", "message": "Password changed succesfully" })
+                    }
+                }
+            } else {
+                res.status(201)
+                    .json({ "status": "failed", "message": "All Fields are Required" })
+            }
+        } catch (err) {
+            res.status(201)
+                .json(err)
         }
     }
 }
