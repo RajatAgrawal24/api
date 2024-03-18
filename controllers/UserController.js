@@ -13,7 +13,16 @@ const jwt = require('jsonwebtoken');
 class UserController {
     static getAllUser = async (req , res) => {
         try {
-            res.send("Welcome")
+            const data = await UserModel.find()
+            res.status(200).json({success:true , data})
+        }catch (err) {
+            console.log(err)
+        }
+    }
+    static getSingleUser = async (req , res) => {
+        try {
+            const data = await UserModel.findById(req.params.id)
+            res.status(200).json({success: true , data})
         }catch (err) {
             console.log(err)
         }
@@ -135,6 +144,69 @@ class UserController {
         } catch (err) {
             res.status(201)
                 .json(err)
+        }
+    }
+    static updateProfile = async (req, res) => {
+        try {
+            //console.log(req.body)
+            if (req.file) {
+                const user = await UserModel.findById(req.user.id);
+                const image_id = user.image.public_id;
+                await cloudinary.uploader.destroy(image_id);
+
+                const file = req.files.image;
+                const myimage = await cloudinary.uploader.upload(file.tempFilePath, {
+                    folder: "projectAPI",
+                    width: 150,
+                });
+                var data = {
+                    name: req.body.name,
+                    email: req.body.email,
+                    image: {
+                        public_id: myimage.public_id,
+                        url: myimage.secure_url,
+                    },
+                };
+            } else {
+                var data = {
+                    name: req.body.name,
+                    email: req.body.email,
+                };
+            }
+
+            const updateuserprofile = await UserModel.findByIdAndUpdate(
+                req.user.id,
+                data
+            );
+            res.status(200).json({
+                success: true,
+                updateuserprofile,
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    static getUserDetail = async (req, res) => {
+        try {
+            //   console.log(req.user);
+            const user = await UserModel.findById(req.user.id);
+
+            res.status(200).json({
+                success: true,
+                user,
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    static deleteUser = async (req, res) => {
+        try {
+            const data = await UserModel.findByIdAndDelete(req.params.id)
+            res
+                .status(200)
+                .json({ status: "success", message: "User deleted successfully 😃🍻" });
+        } catch (err) {
+            console.log(err)
         }
     }
 }
