@@ -1,14 +1,12 @@
 const UserModel = require('../models/User')
-
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const cloudinary = require("cloudinary").v2
 cloudinary.config({ 
   cloud_name: 'dmtgrirpq', 
   api_key: '755746793887993', 
   api_secret: 'bOhK96pOw-iGkZpa2lJTnmh0qwY' 
-});
-
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+})
 
 class UserController {
     static getAllUser = async (req , res) => {

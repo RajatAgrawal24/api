@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const UserController = require('../controllers/UserController');
+const CategoryController = require('../controllers/CategoryController');
+const ProductController = require('../controllers/ProductController');
 const {CheckUserAuth} = require('../middleware/auth')
 
 //UserController
@@ -13,5 +15,20 @@ router.post('/updatePassword' ,CheckUserAuth , UserController.updatePassword)
 router.post('/updateProfile', CheckUserAuth, UserController.updateProfile)
 router.get('/me', CheckUserAuth, UserController.getUserDetail)
 router.delete('/admin/deleteUser/:id', UserController.deleteUser)
+
+//CategoryController
+router.get('/getAllCategories', CategoryController.view);
+router.post('/insertCategory', CategoryController.insert);
+router.get('/getCategory/:id', CategoryController.display);
+router.put('/updateCategory/:id', CategoryController.update);
+router.delete('/deleteCategory/:id', CategoryController.delete);
+
+//ProductController
+router.get('/products', ProductController.getAllProducts)
+router.get('/getProductDetail/:id', ProductController.getProductDetail)
+router.get('/product/getAdminProduct', ProductController.getAdminProduct)
+router.delete('/product/deleteProduct/:id', ProductController.deleteProduct)
+router.post('/product/createProduct', ProductController.createProduct)
+router.post('/product/updateProduct/:id', ProductController.updateProduct)
 
 module.exports = router
