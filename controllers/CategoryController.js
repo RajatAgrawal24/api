@@ -1,5 +1,6 @@
 const CategoryModel = require('../models/Category');
 const cloudinary = require("cloudinary").v2;
+
 cloudinary.config({ 
   cloud_name: 'dmtgrirpq', 
   api_key: '755746793887993', 
@@ -26,13 +27,14 @@ class CategoryController {
           folder: 'projectAPI'
       })
 
-      const { name } = req.body;
+      const { name , description } = req.body;
       const newCategory = new CategoryModel({
         name:name,
         image:{
             public_id:imageUpload.public_id,
             url:imageUpload.secure_url
-        }
+        },
+        description: description
       });
       await newCategory.save();
       res.status(201).json(newCategory);
@@ -56,9 +58,33 @@ class CategoryController {
   static update = async (req, res) => {
     const { id } = req.params;
     try {
-      const updatedCategory = await CategoryModel.findByIdAndUpdate(id, req.body, { new: true });
+      if (req.file) {
+        const product = await productModel.findById(id);
+        const image_id = product.images.public_id;
+        await cloudinary.uploader.destroy(image_id);
+
+        const file = req.files.image;
+        const myimage = await cloudinary.uploader.upload(file.tempFilePath, {
+            folder: "projectAPI",
+        });
+        var data = {
+          name: req.body.name,
+          description: req.body.description,
+          images: {
+              public_id: myimage.public_id,
+              url: myimage.secure_url,
+          },
+        };
+      } else {
+        var data = {
+          name: req.body.name,
+          description: req.body.description,
+        };
+      }
+
+      const updatedCategory = await CategoryModel.findByIdAndUpdate(id, data);
       if (updatedCategory) {
-        res.status(200).json(updatedCategory);
+        res.status(200).json({success:true,updatedCategory});
       } else {
         res.status(404).json({ message: 'Category not found' });
       }

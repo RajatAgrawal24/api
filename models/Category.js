@@ -15,7 +15,12 @@ const categorySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+  },
+  description: {
+    type: String,
+    require: true
   }
 },{ timestamps: true });
+
 const categoryModel = mongoose.model('categories', categorySchema);
 module.exports = categoryModel;
