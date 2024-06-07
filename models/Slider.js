@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
 
-const categorySchema = new mongoose.Schema({
-  name: {
+const SliderSchema = new mongoose.Schema({
+  title: {
     type: String,
     required: true
-
+  },
+  description: {
+    type: String,
+    required: true
   },
   image: {
     public_id: {
@@ -15,12 +18,9 @@ const categorySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-  },
-  description: {
-    type: String,
-    required: true
   }
 },{ timestamps: true });
 
-const categoryModel = mongoose.model('categories', categorySchema);
-module.exports = categoryModel;
+const SliderModel = mongoose.model('slider', SliderSchema);
+
+module.exports = SliderModel;
