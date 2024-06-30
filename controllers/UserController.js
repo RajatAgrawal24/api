@@ -84,7 +84,7 @@ class UserController {
                         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
                         // console.log(token)
                         res.cookie('token', token)
-                        res.status(201).json({ status: "success", message: "Login successfully with web token 😃🍻"});
+                        res.status(201).json({ status: "success", message: "Login successfully with web token 😃🍻", token, user });
                     } else {
                         res.status(401).json({ status: "failed", message: "'Email and Password is not valid !😓" });
                     }
