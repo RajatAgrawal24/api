@@ -15,6 +15,7 @@ class UserController {
             res.status(200).json({success:true , data})
         }catch (err) {
             console.log(err)
+            return res.status(500).json({ "status": "error", "message": error.message });
         }
     }
     static getSingleUser = async (req , res) => {
@@ -23,6 +24,7 @@ class UserController {
             res.status(200).json({success: true , data})
         }catch (err) {
             console.log(err)
+            return res.status(500).json({ "status": "error", "message": error.message });
         }
     }
     static userInsert = async (req, res) => {
@@ -67,6 +69,7 @@ class UserController {
             }
         }catch(err){
             console.log(err);
+            return res.status(500).json({ "status": "error", "message": error.message });
         }
     }
     static loginUser = async (req, res) => {
@@ -96,10 +99,10 @@ class UserController {
             }
         } catch (err) {
             console.log(err)
+            return res.status(500).json({ "status": "error", "message": error.message });
         }
     }
     static logOut = async (req, res) => {
-        
         try {
             res.cookie("token", null, {
                 expires: new Date(Date.now()),
@@ -109,6 +112,7 @@ class UserController {
             res.status(200).json({success: true,message: "Logged Out"});
         } catch (error) {
             console.log(error)
+            return res.status(500).json({ "status": "error", "message": error.message });
         }
     }
     static updatePassword = async (req, res) => {
@@ -121,27 +125,26 @@ class UserController {
                 const isMatch = await bcrypt.compare(oldPassword, user.password)
                 //const isPasswordMatched = await userModel.comparePassword(req.body.oldPassword);
                 if (!isMatch) {
-                    res.status(201).json({ "status": 400, "message": "Old password is incorrect" })
+                    res.status(400).json({ "status": "failed", "message": "Old password is incorrect" })
                 } else {
                     if (newPassword !== confirmPassword) {
-                        res.status(201)
+                        res.status(400)
                             .json({ "status": "failed", "message": "password does not match" })
                     } else {
                         const salt = await bcrypt.genSalt(10)
                         const newHashPassword = await bcrypt.hash(newPassword, salt)
                         //console.log(req.user)
                         await UserModel.findByIdAndUpdate(req.user.id, { $set: { password: newHashPassword } })
-                        res.status(201)
+                        res.status(200)
                             .json({ "status": "success", "message": "Password changed succesfully" })
                     }
                 }
             } else {
-                res.status(201)
+                res.status(400)
                     .json({ "status": "failed", "message": "All Fields are Required" })
             }
         } catch (err) {
-            res.status(201)
-                .json(err)
+            return res.status(500).json({ "status": "error", "message": error.message });
         }
     }
     static updateProfile = async (req, res) => {
@@ -182,6 +185,7 @@ class UserController {
             });
         } catch (error) {
             console.log(error);
+            return res.status(500).json({ "status": "error", "message": error.message });
         }
     }
     static getUserDetail = async (req, res) => {
@@ -195,6 +199,7 @@ class UserController {
             });
         } catch (error) {
             console.log(error);
+            return res.status(500).json({ "status": "error", "message": error.message });
         }
     }
     static deleteUser = async (req, res) => {
@@ -205,6 +210,7 @@ class UserController {
                 .json({ status: "success", message: "User deleted successfully 😃🍻" });
         } catch (err) {
             console.log(err)
+            return res.status(500).json({ "status": "error", "message": error.message });
         }
     }
 }
