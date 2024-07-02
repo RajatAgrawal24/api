@@ -149,45 +149,49 @@ class UserController {
     }
     static updateProfile = async (req, res) => {
         try {
-            //console.log(req.body)
-            if (req.file) {
-                const user = await UserModel.findById(req.user.id);
-                const image_id = user.image.public_id;
-                await cloudinary.uploader.destroy(image_id);
-
-                const file = req.files.image;
-                const myimage = await cloudinary.uploader.upload(file.tempFilePath, {
-                    folder: "projectAPI",
-                    width: 150,
-                });
-                var data = {
-                    name: req.body.name,
-                    email: req.body.email,
-                    image: {
-                        public_id: myimage.public_id,
-                        url: myimage.secure_url,
-                    },
-                };
-            } else {
-                var data = {
-                    name: req.body.name,
-                    email: req.body.email,
+            // console.log(req)
+            // Check if user exists
+            const user = await UserModel.findById(req.user.id);
+            if (!user) {
+                return res.status(404).json({ "status": "error", "message": "User not found" });
+            }
+    
+            let data = {
+                name: req.body.name,
+                email: req.body.email
+            };
+            // console.log(req.files)
+    
+            if (req.files) {
+                // Destroy the old image on Cloudinary
+                if (user.image && user.image.public_id) {
+                    await cloudinary.uploader.destroy(user.image.public_id);
+                }
+    
+                // Upload the new image to Cloudinary
+                const file = req.files.image
+                const myimage = await cloudinary.uploader.upload(file.tempFilePath , {
+                    folder: 'projectAPI'
+                })
+    
+                data.image = {
+                    public_id: myimage.public_id,
+                    url: myimage.secure_url
                 };
             }
-
-            const updateuserprofile = await UserModel.findByIdAndUpdate(
-                req.user.id,
-                data
-            );
-            res.status(200).json({
-                success: true,
-                updateuserprofile,
+    
+            // Update user profile
+            const updateUserProfile = await UserModel.findByIdAndUpdate(req.user.id, data, { new: true });
+    
+            return res.status(200).json({
+                "status": "success",
+                "updateUserProfile": updateUserProfile
             });
         } catch (error) {
-            console.log(error);
+            console.error(error);
             return res.status(500).json({ "status": "error", "message": error.message });
         }
-    }
+    };
     static getUserDetail = async (req, res) => {
         try {
             //   console.log(req.user);
