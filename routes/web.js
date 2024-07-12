@@ -5,6 +5,7 @@ const CategoryController = require('../controllers/CategoryController');
 const ProductController = require('../controllers/ProductController');
 const SliderController = require('../controllers/SliderController');
 const PaymentController = require('../controllers/PaymentController');
+const OrderController = require('../controllers/OrderController');
 const {CheckUserAuth} = require('../middleware/auth')
 
 //UserController
