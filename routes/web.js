@@ -33,6 +33,7 @@ router.get('/product/getAdminProduct', ProductController.getAdminProduct)
 router.delete('/product/deleteProduct/:id', ProductController.deleteProduct)
 router.post('/product/createProduct', ProductController.createProduct)
 router.post('/product/updateProduct/:id', ProductController.updateProduct)
+router.get('/product/getCategoryProducts', ProductController.getCategoryProducts)
 
 //SliderController
 router.get('/slider', SliderController.display)
