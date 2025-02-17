@@ -22,7 +22,10 @@ app.use(cookieparser())
 
 //For api communication in React
 const cors = require('cors')
-app.use(cors())
+app.use(cors({
+    origin: '*',  // Allow all origins
+    credentials: true // Allow cookies and credentials
+}));
 
 //Load route
 app.use('/api',web)
